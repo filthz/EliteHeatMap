@@ -8,7 +8,7 @@ import java.net.URL;
 public class HttpTools {
 
     private final String USER_AGENT = "Mozilla/5.0";
-    private final String apiUrl = "http://localhost/api/addvisit/";
+    private final String apiUrl = "http://www.010102.de/api/addvisit/";
 
     // HTTP POST request
     public void sendPost(String system) throws Exception {
@@ -30,13 +30,6 @@ public class HttpTools {
         wr.flush();
         wr.close();
 
-        int responseCode = con.getResponseCode();
-        /*
-        System.out.println("\nSending 'POST' request to URL : " + apiUrl);
-        System.out.println("Post parameters : " + urlParameters);
-        System.out.println("Response Code : " + responseCode);
-        */
-
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
         String inputLine;
@@ -46,9 +39,6 @@ public class HttpTools {
             response.append(inputLine);
         }
         in.close();
-
-        //print result
-        //System.out.println(response.toString());
     }
 
 }
