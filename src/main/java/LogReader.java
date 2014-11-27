@@ -6,13 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Arrays;
 
-/**
- * Created with IntelliJ IDEA.
- * User: filth
- * Date: 26.11.14
- * Time: 20:45
- * To change this template use File | Settings | File Templates.
- */
 public class LogReader extends Thread {
 
     private String systemName = "";
@@ -51,6 +44,14 @@ public class LogReader extends Thread {
         System.exit(0);
     }
 
+    private void waitDelay() {
+        try {
+            sleep(60000);
+        } catch (InterruptedException e) {
+            logger.error("Sleep failed", e);
+        }
+    }
+
     public void run()  {
 
         while(true) {
@@ -75,30 +76,33 @@ public class LogReader extends Thread {
                 fileContent = sb.toString();
                 reader.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Could not read log-file", e);
             }
 
             int systemPosition = fileContent.lastIndexOf("System:");
+
+            // no system data in log
+            if(systemPosition == -1) {
+                waitDelay();
+                continue;
+            }
+
             int systemNameStart = fileContent.indexOf("(", systemPosition);
             int systemNameEnd = fileContent.indexOf(")", systemPosition);
 
             String newSystemName = fileContent.substring(systemNameStart+1, systemNameEnd);
             if(!systemName.equalsIgnoreCase(newSystemName)) {
-               // System.out.println("send data!");
+                logger.info("New Systemname: " + newSystemName);
                 try {
                     httpTools.sendPost(newSystemName);
                 } catch (Exception e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    logger.error("Could not send System data", e);
                 }
             }
 
             systemName = newSystemName;
 
-            try {
-                sleep(60000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            waitDelay();
         }
 
     }
