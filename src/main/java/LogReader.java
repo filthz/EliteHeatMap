@@ -10,8 +10,6 @@ public class LogReader extends Thread {
 
     private String systemName = "";
 
-    private HttpTools httpTools = new HttpTools();
-
     private static final Logger logger = LoggerFactory.getLogger(LogReader.class);
 
 
@@ -54,6 +52,10 @@ public class LogReader extends Thread {
 
     public void run()  {
 
+        PropertyReader propertyReader = new PropertyReader();
+        String commander = propertyReader.getProperty("commander");
+        DataSender dataSender = new DataSender();
+
         while(true) {
             String fileContent = "";
             String file = getNewestLogfile();
@@ -93,11 +95,7 @@ public class LogReader extends Thread {
             String newSystemName = fileContent.substring(systemNameStart+1, systemNameEnd);
             if(!systemName.equalsIgnoreCase(newSystemName)) {
                 logger.info("New Systemname: " + newSystemName);
-                try {
-                    httpTools.sendPost(newSystemName);
-                } catch (Exception e) {
-                    logger.error("Could not send System data", e);
-                }
+                dataSender.sendData(newSystemName, commander);
             }
 
             systemName = newSystemName;
